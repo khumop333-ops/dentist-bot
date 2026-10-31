@@ -7,7 +7,7 @@ A fictional, non-production front-desk demonstration for a dental practice in Me
 1. Install Node.js 20 or newer, then `npm install`.
 2. Copy `.env.example` to `.env.local`. Set the values below only if you want to persist fictional requests; the website and chat work without them.
 3. Run `npm run dev`, then visit `http://localhost:3000`. Use fictional details only.
-4. Run `npm run lint` and `npm run build` to check the project.
+4. Run `npm run lint` and `npm run build` to check the project. `npm test` runs deterministic intent and validation checks on Node.js 22.
 
 ## Supabase
 
