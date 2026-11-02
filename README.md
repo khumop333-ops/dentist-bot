@@ -1,27 +1,95 @@
-# Demo Dental Studio
+# Dentist bot — web demo and knowledge base
 
-A fictional, non-production front-desk demonstration for a dental practice in Menlyn. It answers a local set of approved administrative FAQs, shows an appointment **request** flow, routes urgent messages to fictional contact information and offers a handoff. It does not provide medical advice, check availability or make appointments. No AI key is required. Do not use this demo for real patient data or dental advice without legal, privacy and compliance review.
+The Next.js app is a fictional, non-production front-desk demo. It answers
+approved administrative FAQs and captures demo appointment requests; it does not
+give dental or medical advice or make real appointments. Do not enter real personal
+or medical information. The separate experimental Python knowledge-base files are
+retained for research; they are not connected to the website chat and are not
+approved for patient use.
 
-## Local setup
+## Web app / Vercel
 
-1. Install Node.js 20 or newer, then `npm install`.
-2. Copy `.env.example` to `.env.local`. Set the values below only if you want to persist fictional requests; the website and chat work without them.
-3. Run `npm run dev`, then visit `http://localhost:3000`. Use fictional details only.
-4. Run `npm run lint` and `npm run build` to check the project. `npm test` runs deterministic intent and validation checks on Node.js 22.
+```sh
+npm ci
+npm run dev
+npm test
+npm run lint
+npm run build
+```
 
-## Supabase
+Vercel: Next.js preset, repository root, default build/output settings. The
+chat recognises a range of phrasings for the approved practice FAQs, but it is a
+deterministic matcher rather than a general-purpose AI. It cannot answer clinical
+questions; unknown questions are handed off. It does not collect chat transcripts.
+The request flow accepts fictional details only. Apply the SQL migration in
+`supabase/migrations/` to a dedicated Supabase demo project, then configure
+`NEXT_PUBLIC_SUPABASE_URL` and the server-only `SUPABASE_SERVICE_ROLE_KEY` as in
+`.env.example`. Without them, submissions fail closed with a friendly message.
+Inspect demo rows in the Supabase dashboard; no anonymous read policy exists.
+Never expose the service-role key to browser code. No AI key is required.
 
-Create or choose a project specifically for this demo. Run `supabase/migrations/20261031000000_demo_appointment_requests.sql` in its SQL editor or apply it using the Supabase CLI. It creates `public.demo_appointment_requests`, enables RLS, revokes anonymous/authenticated access and creates no public policies. Inserts are performed only by the server using the service role. Inspect fictional rows using the Supabase dashboard Table Editor; there is deliberately no public admin page. Establish an appropriate deletion/retention policy before any real-world deployment. Do not use an unrelated project without permission.
+The website is marked noindex/nofollow and robots.txt disallows indexing, but
+these are not access controls. Change fictional practice information consistently
+in `lib/content.ts`, `app/page.tsx` and `components/site.tsx`. A real deployment
+would require verified practice details, approved content, consent, integration,
+and legal, privacy and compliance review.
 
-## Vercel environment variables
+The recovered dependency tree reports npm audit findings; upgrading dependency
+major versions is separate from the deployment restoration and must be tested
+before real-world use.
 
-Set these in the Vercel project for the appropriate environment and redeploy:
+## Separate experimental Python prototype (not the web chat)
 
-- `NEXT_PUBLIC_SUPABASE_URL`: the demo project's URL.
-- `SUPABASE_SERVICE_ROLE_KEY`: the project's server-only service-role key. Never expose this as a `NEXT_PUBLIC_` variable or commit it.
+These research examples are separate from the no-advice website demo. Do not use
+them for patient data or advice.
 
-Without either variable, submissions return a friendly unavailable message; no request is stored or represented as successful. Deploy the Next.js project using the default Vercel framework settings. Both pages and robots.txt instruct search engines not to index; this is not access control.
+```sh
+python bot.py --intake
+python bot.py "How often should I brush?"
+# Only after a negative safety screen, explicitly supplied by the caller:
+python bot.py "How often should I brush?" --safety clear
+python bot.py "Jaw swelling and fever" --safety urgent
+python -m unittest discover -s tests -v
+```
 
-## Customisation and boundaries
+Without a safety result the demo asks the safety screen rather than answering.
+`--safety` simulates an explicit screening result; it is NOT inferred from text.
+Do not default it to `clear` in an integration. This CLI cannot reliably interpret
+symptoms, negation or emergencies in free text and must not be used for clinical
+triage. Keyword matching supports only a small demonstration vocabulary.
 
-Practice details and approved FAQ answers live in `lib/content.ts`; site copy appears in `app/page.tsx`, `components/site.tsx` and the informational pages. Review all copy, fictional contact details, `tel:` links, safety routing and emergency text together before changing anything. The chat is a deterministic state machine, not an LLM; free-text matching is deliberately limited. The sample image is AI-generated. No calendar, PMS, messaging, payments, patient records, medical-aid verification or clinical advice are included. Strict validation and a honeypot reduce accidental submissions but are not production-grade abuse protection or a substitute for compliance review.
+## Contents
+
+- `data/dental_knowledge.json`: 12 paraphrased FAQs, source registry and nine
+  entry-level intake questions. Covers brushing, interdental cleaning, check-ups,
+  toothache, sensitivity, gums, bad breath, abscesses, root canals, decay prevention,
+  temporary comfort and antibiotics.
+- `data/mock_conversations.json`: six entirely synthetic scenarios, including
+  urgent, emergency, unknown and unscreened cases. No real patient records.
+- `prompts/dental_assistant.md`: grounding, handoff, privacy and safety policy for
+  a future conversational integration. The CLI does not execute this prompt.
+- `bot.py`: curated-answer retrieval with citations and explicit safety routing.
+- `tests/test_bot.py`: fixture, provenance and routing checks.
+
+## Research and limitations
+
+Research date: **2026-11-02**. Sources were NHS web-search extracts, not full-page
+clinical review; exact URLs and provenance are recorded per FAQ in the JSON.
+The wording is educational paraphrase. Mock conversations are invented separately
+from the sourced medical content. Sources:
+
+- [Oral hygiene](https://www.nhs.uk/live-well/healthy-teeth-and-gums/take-care-of-your-teeth-and-gums/)
+- [Toothache](https://www.nhs.uk/symptoms/toothache/)
+- [Gum disease](https://www.nhs.uk/conditions/gum-disease/)
+- [Dental abscess](https://www.nhs.uk/conditions/dental-abscess/)
+- [Root canal treatment](https://www.nhs.uk/tests-and-treatments/root-canal-treatment/)
+
+These are UK educational sources, not South African practice policy. UK service
+numbers, costs and eligibility rules are intentionally not imported. Prices,
+medical-aid cover, appointments and practice details are unknown, not fabricated.
+
+Before patient use: obtain local clinician review (including red flags, children
+and medication wording), validate a real screening/human-handoff workflow, add
+POPIA-appropriate consent/security/retention controls and configure verified
+practice details and local emergency information. Review sources periodically.
+Tests validate software behavior, not clinical safety or accuracy.

@@ -1,0 +1,8 @@
+[
+  {"id":"hygiene", "synthetic":true, "message":"How often should I brush?", "safety":"clear", "expected_route":"faq", "expected_faq_id":"brushing"},
+  {"id":"root", "synthetic":true, "message":"What is a root canal?", "safety":"clear", "expected_route":"faq", "expected_faq_id":"root_canal"},
+  {"id":"urgent", "synthetic":true, "message":"My jaw is swollen and I have a fever", "safety":"urgent", "expected_route":"urgent_dentist"},
+  {"id":"emergency", "synthetic":true, "message":"I cannot swallow and my neck is swollen", "safety":"emergency", "expected_route":"emergency"},
+  {"id":"unknown", "synthetic":true, "message":"What does the practice charge?", "safety":"clear", "expected_route":"handoff"},
+  {"id":"unscreened", "synthetic":true, "message":"I have toothache", "safety":null, "expected_route":"safety_screen"}
+]
