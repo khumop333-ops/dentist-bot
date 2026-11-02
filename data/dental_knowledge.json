@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "research_date": "2026-11-02",
+  "status": "prototype; clinician review required",
+  "sources": [
+    {
+      "id": "hygiene",
+      "title": "Take care of your teeth and gums",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/live-well/healthy-teeth-and-gums/take-care-of-your-teeth-and-gums/",
+      "accessed_on": "2026-11-02",
+      "evidence": "Web search extracts; paraphrased, not a full clinical review"
+    },
+    {
+      "id": "pain",
+      "title": "Toothache",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/symptoms/toothache/",
+      "accessed_on": "2026-11-02",
+      "evidence": "Web search extracts; paraphrased, not a full clinical review"
+    },
+    {
+      "id": "gums",
+      "title": "Gum disease",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/conditions/gum-disease/",
+      "accessed_on": "2026-11-02",
+      "evidence": "Web search extracts; paraphrased, not a full clinical review"
+    },
+    {
+      "id": "abscess",
+      "title": "Dental abscess",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/conditions/dental-abscess/",
+      "accessed_on": "2026-11-02",
+      "evidence": "Web search extracts; paraphrased, not a full clinical review"
+    },
+    {
+      "id": "root",
+      "title": "Root canal treatment",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/tests-and-treatments/root-canal-treatment/",
+      "accessed_on": "2026-11-02",
+      "evidence": "Web search extracts; paraphrased, not a full clinical review"
+    }
+  ],
+  "faqs": [
+    {
+      "id": "brushing",
+      "question": "How often should I brush?",
+      "keywords": [
+        "brush",
+        "brushing",
+        "toothpaste"
+      ],
+      "answer": "Brush twice a day for about two minutes using fluoride toothpaste. Spit out the excess rather than rinsing immediately.",
+      "source_ids": [
+        "hygiene",
+        "pain",
+        "gums"
+      ]
+    },
+    {
+      "id": "flossing",
+      "question": "Do I need to floss?",
+      "keywords": [
+        "floss",
+        "flossing",
+        "interdental"
+      ],
+      "answer": "Clean between your teeth daily with floss or interdental brushes. A dental professional can help you choose a suitable method.",
+      "source_ids": [
+        "hygiene"
+      ]
+    },
+    {
+      "id": "checkups",
+      "question": "When should I have a check-up?",
+      "keywords": [
+        "checkup",
+        "check-up",
+        "check up",
+        "regular visits"
+      ],
+      "answer": "Have regular dental check-ups. Ask your dentist how often you need to attend; the interval depends on your individual needs.",
+      "source_ids": [
+        "hygiene"
+      ]
+    },
+    {
+      "id": "toothache",
+      "question": "Why does my tooth hurt?",
+      "keywords": [
+        "toothache",
+        "tooth pain",
+        "tooth hurts",
+        "sore tooth"
+      ],
+      "answer": "Toothache has several possible causes, including decay, a damaged tooth, gum disease or infection. Only a dental assessment can establish the cause. Arrange dental care, particularly if pain persists or worsens.",
+      "source_ids": [
+        "pain"
+      ]
+    },
+    {
+      "id": "sensitivity",
+      "question": "Why do hot or cold drinks hurt my teeth?",
+      "keywords": [
+        "sensitive",
+        "sensitivity",
+        "cold",
+        "hot"
+      ],
+      "answer": "Sensitivity can cause tooth pain, but pain with hot or cold food can also occur with other dental problems. A dentist should assess persistent or worsening symptoms.",
+      "source_ids": [
+        "pain",
+        "abscess"
+      ]
+    },
+    {
+      "id": "bleeding_gums",
+      "question": "Why do my gums bleed?",
+      "keywords": [
+        "bleeding gums",
+        "gums bleed",
+        "bleed when",
+        "gum disease"
+      ],
+      "answer": "Bleeding, swollen or sore gums can be signs of gum disease. Book a dental assessment and continue gentle brushing and daily cleaning between teeth. Very sore or swollen gums or loose teeth need urgent dental advice.",
+      "source_ids": [
+        "gums"
+      ]
+    },
+    {
+      "id": "bad_breath",
+      "question": "Can gum problems cause bad breath?",
+      "keywords": [
+        "bad breath",
+        "bad taste"
+      ],
+      "answer": "Gum disease can cause bad breath or a bad taste, although these symptoms do not establish a diagnosis. Keep up oral hygiene and see a dentist if symptoms persist.",
+      "source_ids": [
+        "gums"
+      ]
+    },
+    {
+      "id": "abscess",
+      "question": "What is a dental abscess?",
+      "keywords": [
+        "abscess",
+        "pus",
+        "infection"
+      ],
+      "answer": "A dental abscess is a collection of pus caused by infection. It needs urgent dental treatment and will not go away on its own. Do not try to drain it yourself.",
+      "source_ids": [
+        "abscess"
+      ]
+    },
+    {
+      "id": "root_canal",
+      "question": "What is root canal treatment?",
+      "keywords": [
+        "root canal"
+      ],
+      "answer": "Root canal treatment removes infected tissue from inside a tooth, then cleans, fills and seals it. More than one appointment may be needed, and sometimes a crown is required. Your dentist will assess whether it is suitable.",
+      "source_ids": [
+        "root"
+      ]
+    },
+    {
+      "id": "sugar",
+      "question": "How can I reduce the risk of tooth decay?",
+      "keywords": [
+        "sugar",
+        "decay",
+        "cavity",
+        "cavities"
+      ],
+      "answer": "Brush with fluoride toothpaste twice daily, clean between teeth daily and have regular dental check-ups. Reduce sugary food and drinks, keeping them to occasional treats at mealtimes.",
+      "source_ids": [
+        "pain"
+      ]
+    },
+    {
+      "id": "pain_relief",
+      "question": "What can I do while waiting for a dentist?",
+      "keywords": [
+        "pain relief",
+        "painkiller",
+        "waiting",
+        "paracetamol",
+        "ibuprofen"
+      ],
+      "answer": "Soft foods and avoiding chewing with a sore tooth may help temporarily. Ask a pharmacist which pain relief is safe for your age, health and medicines, and follow the label. This does not replace dental treatment.",
+      "source_ids": [
+        "pain"
+      ]
+    },
+    {
+      "id": "antibiotics",
+      "question": "Will antibiotics fix an abscess?",
+      "keywords": [
+        "antibiotic",
+        "antibiotics"
+      ],
+      "answer": "An abscess needs urgent dental care. A dentist may need to drain it, treat the root canal or remove the tooth, and may also prescribe antibiotics. Do not use leftover antibiotics or delay dental treatment.",
+      "source_ids": [
+        "abscess"
+      ]
+    }
+  ],
+  "intake_questions": [
+    {
+      "id": "safety",
+      "question": "Before we continue: are you having trouble breathing, swallowing or speaking, swelling around your eye or neck, or heavy bleeding that will not stop?"
+    },
+    {
+      "id": "reason",
+      "question": "What would you like help with: a general question, a dental problem or arranging an appointment?"
+    },
+    {
+      "id": "age",
+      "question": "Is this for an adult or a child, and what is their age?"
+    },
+    {
+      "id": "location",
+      "question": "Where in your mouth is the problem?"
+    },
+    {
+      "id": "duration",
+      "question": "When did it start, and is it getting worse?"
+    },
+    {
+      "id": "severity",
+      "question": "How severe is the pain from zero to ten? Is it affecting sleep or eating?"
+    },
+    {
+      "id": "symptoms",
+      "question": "Is there swelling, fever, bleeding, a bad taste or a recent injury?"
+    },
+    {
+      "id": "history",
+      "question": "If relevant to your care, are there any medical conditions, medicines, allergies or pregnancy the dentist should know about? You can share these directly with the clinician instead."
+    },
+    {
+      "id": "goal",
+      "question": "Would you like help contacting the practice? Availability must be confirmed by staff."
+    }
+  ]
+}
