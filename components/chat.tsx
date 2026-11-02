@@ -1,0 +1,63 @@
+'use client';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowRight, Bot, CalendarDays, Check, ChevronDown, MessageCircle, Phone, RotateCcw, Send, X } from 'lucide-react';
+import { answerFor, dentalAnswerFor, emergency, hasMedicalDetails, intro, isEmergency } from '@/lib/content';
+import { dayPattern, requestSchema } from '@/lib/schema';
+type Stage = 'menu'|'patient_type'|'appointment_type'|'preferred_day'|'preferred_time_window'|'full_name'|'phone'|'email'|'consent'|'review'|'done';
+type Message = {who:'bot'|'user'; text:string; emergency?:boolean};
+type Data = {patient_type:string;appointment_type:string;preferred_day:string;preferred_time_window:string;full_name:string;phone:string;email:string;consent:boolean};
+const empty:Data={patient_type:'',appointment_type:'',preferred_day:'',preferred_time_window:'',full_name:'',phone:'',email:'',consent:false};
+const initial:Message[]=[{who:'bot',text:intro}];
+const menu=['Dental basics','Request an appointment','Hours & location','Fees & medical aid','Services','Emergency'];
+const choices:Partial<Record<Stage,string[]>>={patient_type:['New','Existing','Not sure'], appointment_type:['Check-up','Cleaning','Pain or urgent consultation','Braces consultation','Implant consultation','Children’s appointment','Other'],preferred_time_window:['Weekday morning','Weekday afternoon','Saturday morning','Flexible'],email:['Skip email'],consent:['I agree','I do not agree']};
+const prompts:Partial<Record<Stage,string>>={patient_type:'Are you a new or existing patient?',appointment_type:'What type of appointment would you like to request?',preferred_day:'What day would you prefer? For example, “Next Tuesday”. This is a preference, not availability.',preferred_time_window:'What time window would you prefer?',full_name:'What fictional full name should we use? Please don’t enter real personal information.',phone:'What fictional mobile number should we use?',email:'What fictional email should we use? This is optional.',consent:'I agree to be contacted about this demo request. I understand this is not a real booking.',review:'Please review your demo request. No real appointment will be booked.'};
+export default function Chat(){
+ const [open,setOpen]=useState(false), [stage,setStage]=useState<Stage>('menu'), [data,setData]=useState<Data>(empty), [messages,setMessages]=useState<Message[]>(initial), [value,setValue]=useState(''), [typing,setTyping]=useState(false), [fails,setFails]=useState(0), [submitting,setSubmitting]=useState(false), [website,setWebsite]=useState('');
+ const launcher=useRef<HTMLButtonElement>(null), close=useRef<HTMLButtonElement>(null), end=useRef<HTMLDivElement>(null), timer=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const reset=useCallback(()=>{if(timer.current) clearTimeout(timer.current);setTyping(false);setMessages(initial);setStage('menu');setData(empty);setFails(0);setValue('');setWebsite('')},[]);
+ const say=useCallback((text:string, urgent=false)=>{setTyping(true); if(timer.current) clearTimeout(timer.current); timer.current=setTimeout(()=>{setMessages(m=>[...m,{who:'bot',text,emergency:urgent}]);setTyping(false)},450)},[]);
+ const start=useCallback(()=>{reset();setOpen(true);setStage('patient_type');say('Let’s create a fictional request. No real appointment will be booked. Are you a new or existing patient?')},[reset,say]);
+ useEffect(()=>{const handler=(event:MouseEvent)=>{const target=(event.target as HTMLElement).closest<HTMLElement>('[data-chat]');if(!target)return;if(target.dataset.chat==='booking')start();else setOpen(true)};document.addEventListener('click',handler);return()=>document.removeEventListener('click',handler)},[start]);
+ useEffect(()=>{if(open){close.current?.focus()}},[open]);
+ useEffect(()=>{if(open)end.current?.scrollIntoView({block:'nearest',behavior:'smooth'})},[messages,typing,open,stage]);
+ useEffect(()=>()=>{if(timer.current)clearTimeout(timer.current)},[]);
+ const dismiss=()=>{setOpen(false);launcher.current?.focus()};
+ const submitText=(raw:string, chip=false)=>{
+  const text=raw.trim();if(!text||typing||submitting)return;setValue('');
+  // Free-form text is never echoed or retained in the conversation. Only known choices are displayed.
+  setMessages(m=>[...m,{who:'user',text:chip?text:'Message received'}]);
+  if (/\b(ignore|override|bypass|system prompt|instructions|reveal|jailbreak|other users|database|developer message)\b/i.test(text)) {say('I can only help with the approved front-desk demo. Please choose an option below.');return}
+  if(isEmergency(text)) {
+   if(stage==='appointment_type' && text==='Pain or urgent consultation'){setData(d=>({...d,appointment_type:text}));setStage('preferred_day');say(`${emergency}\n\nIf you still wish to demonstrate a request, what day would you prefer?`,true)}
+   else say(emergency,true);
+   return;
+  }
+  if(stage==='menu'||stage==='done') {
+   if(text==='Dental basics'){say('I can share sourced general education, not a diagnosis. Try: How often should I brush? Do I need to floss? What is root canal treatment? For symptoms or urgent concerns, contact a dentist. Please do not share personal health details.');return}
+   const education=dentalAnswerFor(text);
+   if(education){say(education);return}
+  }
+  if(hasMedicalDetails(text) && !(stage==='menu' && /what.*bring/i.test(text))){say('Please don’t share medical information in this demo. I can’t give dental or medical advice. Call the fictional practice on 012 000 0000.');return}
+  if(stage==='menu'||stage==='done'){
+   if (/request an appointment|book|appointment request/i.test(text) && !/how.*(work|request)/i.test(text)){setStage('patient_type');setData(empty);say('This is a fictional request, not a real booking. Are you a new or existing patient?');return}
+   const answer= text==='Hours & location' ? 'Monday–Friday 08:00–17:00; Saturday 08:00–12:00. Closed Sundays and public holidays. The fictional address is 123 Demo Lane, Menlyn, Pretoria, 0181; parking is shown as available for this demo only.' : text==='Fees & medical aid' ? 'Cover depends on the scheme and plan. A real practice would confirm before your visit; this demo does not verify medical aid. The practice would confirm fees after an assessment.' : answerFor(text);
+   if(answer){setFails(0);say(answer);return}
+   const n=fails+1;setFails(n);say(n>=2?'I’m not sure about that. Please call the fictional practice on 012 000 0000; a live version would send a message to the front desk.':'I’m not sure I understood. Please choose a topic below or call the fictional practice on 012 000 0000.');return;
+  }
+  let next:Stage|undefined; let update:Partial<Data>={};
+  switch(stage){
+   case 'patient_type': {const types:Record<string,string>={new:'new',existing:'existing','not sure':'unsure'};if(!types[text.toLowerCase()]){say('Please choose New, Existing or Not sure.');return}update={patient_type:types[text.toLowerCase()]};next='appointment_type';break;}
+   case 'appointment_type': {const option=choices.appointment_type?.find(x=>x.toLowerCase()===text.toLowerCase());if(!option){say('Please choose an appointment type from the options.');return}update={appointment_type:option};next='preferred_day';break;}
+   case 'preferred_day': if(!dayPattern.test(text)){say('Please enter only a short day or date preference, such as “Next Tuesday”.');return}update={preferred_day:text};next='preferred_time_window';break;
+   case 'preferred_time_window': {const option=choices.preferred_time_window?.find(x=>x.toLowerCase()===text.toLowerCase());if(!option){say('Please choose one of the time windows.');return}update={preferred_time_window:option};next='full_name';break;}
+   case 'full_name': if(!/^[\p{L}][\p{L} .'-]{1,79}$/u.test(text)){say('Please enter a short fictional name using letters only.');return}update={full_name:text};next='phone';break;
+   case 'phone': if(!/^[+\d ()-]{7,20}$/.test(text)){say('Please enter a fictional phone number using 7–20 digits or phone characters.');return}update={phone:text};next='email';break;
+   case 'email': if(text.toLowerCase()==='skip email')update={email:''};else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)||text.length>120){say('Please enter a fictional email address or choose Skip email.');return}else update={email:text};next='consent';break;
+   case 'consent': if(text.toLowerCase()!=='i agree'){say('Consent is required to submit. Choose “I agree” to continue, or reset to start again.');return}update={consent:true};next='review';break;
+   default:return;
+  }
+  setData(d=>({...d,...update}));setStage(next);say(prompts[next]||'');
+ };
+ const submit=async()=>{if(submitting)return;const payload={...data,website};if(!requestSchema.safeParse(payload).success){say('Please reset and check your demo details and consent.');return}setSubmitting(true);try{const response=await fetch('/api/demo-appointment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await response.json();if(!response.ok){say('Demo requests are not available right now. No appointment has been booked. Please try again later.');return}setStage('done');setData(empty);say(`Thanks. This is a demo request only—no real appointment has been booked. In a live version, the practice would receive this and confirm with you. Reference: ${result.reference}.`)}catch{say('Demo requests are not available right now. No appointment has been booked. Please try again later.')}finally{setSubmitting(false)}};
+ return <div className="chat-root"><button ref={launcher} className="chat-launcher" aria-label="Chat with the front desk" aria-expanded={open} onClick={()=>setOpen(v=>!v)}>{open?<ChevronDown size={21}/>:<MessageCircle size={21}/>}<span>{open?'Close chat':'Chat with the front desk'}</span></button>{open&&<section className="chat-panel" role="dialog" aria-modal="false" aria-label="Demo front desk assistant" onKeyDown={e=>{if(e.key==='Escape')dismiss()}}><div className="chat-header"><div className="chat-header-icon"><Bot size={21}/></div><div><strong>Demo Dental Studio</strong><span><i/> Demo assistant</span></div><div className="chat-header-actions"><button aria-label="Reset chat" onClick={reset}><RotateCcw size={17}/></button><button ref={close} aria-label="Close chat" onClick={dismiss}><X size={19}/></button></div></div><div className="chat-body" aria-live="polite" aria-relevant="additions text"> <div className="chat-date">FICTIONAL DEMO · FRONT DESK</div>{messages.map((m,i)=><div key={i} className={`message ${m.who} ${m.emergency?'emergency-message':''}`}>{m.emergency&&<strong>URGENT INFORMATION<br/></strong>}{m.text}</div>)}{typing&&<div className="message bot typing" aria-label="Assistant is typing"><i/><i/><i/></div>}{stage==='review'&&!typing&&<div className="review-card"><strong>Demo request summary</strong><dl>{[['Patient',data.patient_type],['Appointment',data.appointment_type],['Preferred day',data.preferred_day],['Time window',data.preferred_time_window],['Name',data.full_name],['Mobile',data.phone],['Email',data.email||'Not provided']].map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl><p><Check size={14}/> Consent given · Not a real booking</p><label className="honeypot" aria-hidden="true">Website<input tabIndex={-1} autoComplete="off" value={website} onChange={e=>setWebsite(e.target.value)}/></label><button className="button button-dark review-submit" onClick={submit} disabled={submitting}>{submitting?'Submitting…':'Submit demo request'} <ArrowRight size={16}/></button></div>}<div ref={end}/></div><div className="chat-controls">{!typing&&stage!=='review'&&<div className="chips">{(stage==='menu'||stage==='done'?menu:choices[stage]||[]).map(c=><button key={c} onClick={()=>submitText(c,true)}>{c}</button>)}</div>}{stage!=='review'&&<form className="chat-form" onSubmit={e=>{e.preventDefault();submitText(value)}}><label className="sr-only" htmlFor="chat-input">Type a message</label><input id="chat-input" placeholder={stage==='menu'?'Type your question…':'Type your answer…'} value={value} onChange={e=>setValue(e.target.value)} maxLength={200} autoComplete="off" disabled={typing}/><button type="submit" aria-label="Send message" disabled={!value.trim()||typing}><Send size={17}/></button></form>}<a className="chat-call" href="tel:0120000000"><Phone size={14}/> Call the practice: 012 000 0000 <span>(fictional)</span></a><div className="chat-disclaimer"><CalendarDays size={12}/> Demo only · No real appointments</div></div></section>}</div>
+}
