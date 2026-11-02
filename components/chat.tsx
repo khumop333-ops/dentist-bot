@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Bot, CalendarDays, Check, ChevronDown, MessageCircle, Phone, RotateCcw, Send, X } from 'lucide-react';
-import { answerFor, emergency, hasMedicalDetails, intro, isEmergency } from '@/lib/content';
+import { answerFor, emergency, hasMedicalDetails, intro, isEmergency, isInstructionAttack, isClinicalQuestion, wantsAppointmentRequest } from '@/lib/content';
 import { dayPattern, requestSchema } from '@/lib/schema';
 type Stage = 'menu'|'patient_type'|'appointment_type'|'preferred_day'|'preferred_time_window'|'full_name'|'phone'|'email'|'consent'|'review'|'done';
 type Message = {who:'bot'|'user'; text:string; emergency?:boolean};
@@ -26,18 +26,19 @@ export default function Chat(){
   const text=raw.trim();if(!text||typing||submitting)return;setValue('');
   // Free-form text is never echoed or retained in the conversation. Only known choices are displayed.
   setMessages(m=>[...m,{who:'user',text:chip?text:'Message received'}]);
-  if (/\b(ignore|override|bypass|system prompt|instructions|reveal|jailbreak|other users|database|developer message)\b/i.test(text)) {say('I can only help with the approved front-desk demo. Please choose an option below.');return}
   if(isEmergency(text)) {
    if(stage==='appointment_type' && text==='Pain or urgent consultation'){setData(d=>({...d,appointment_type:text}));setStage('preferred_day');say(`${emergency}\n\nIf you still wish to demonstrate a request, what day would you prefer?`,true)}
    else say(emergency,true);
    return;
   }
+  if(isInstructionAttack(text)) {say('I can only help with the approved front-desk demo. Please choose an option below.');return}
   if(hasMedicalDetails(text) && !(stage==='menu' && /what.*bring/i.test(text))){say('Please don’t share medical information in this demo. I can’t give dental or medical advice. Call the fictional practice on 012 000 0000.');return}
   if(stage==='menu'||stage==='done'){
-   if (/request an appointment|book|appointment request/i.test(text) && !/how.*(work|request)/i.test(text)){setStage('patient_type');setData(empty);say('This is a fictional request, not a real booking. Are you a new or existing patient?');return}
-   const answer= text==='Hours & location' ? 'Monday–Friday 08:00–17:00; Saturday 08:00–12:00. Closed Sundays and public holidays. The fictional address is 123 Demo Lane, Menlyn, Pretoria, 0181; parking is shown as available for this demo only.' : text==='Fees & medical aid' ? 'Cover depends on the scheme and plan. A real practice would confirm before your visit; this demo does not verify medical aid. The practice would confirm fees after an assessment.' : answerFor(text);
+   if (isClinicalQuestion(text) && !/\bbring\b/i.test(text)) {say('I can’t provide dental or medical advice. Please don’t share medical information in this demo; call the fictional practice on 012 000 0000.');return}
+   if (wantsAppointmentRequest(text)){setStage('patient_type');setData(empty);say('This is a fictional request, not a real booking. Are you a new or existing patient?');return}
+   const answer=answerFor(text);
    if(answer){setFails(0);say(answer);return}
-   const n=fails+1;setFails(n);say(n>=2?'I’m not sure about that. Please call the fictional practice on 012 000 0000; a live version would send a message to the front desk.':'I’m not sure I understood. Please choose a topic below or call the fictional practice on 012 000 0000.');return;
+   const n=fails+1;setFails(n);say(n>=2?'I’m not sure about that. Please call the fictional practice on 012 000 0000; a live version would send a message to the front desk.':'I can answer approved front-desk questions, such as opening hours, parking, fees or services. Please choose a topic below or call the fictional practice on 012 000 0000.');return;
   }
   let next:Stage|undefined; let update:Partial<Data>={};
   switch(stage){
