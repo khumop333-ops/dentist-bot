@@ -1,12 +1,11 @@
 # Dentist bot — web demo and knowledge base
 
-The original Next.js dental front-desk app has been recovered from commit
-`b4bf33ca6be1d441abc25704faa5bf8f62881e3d` on
-`arena/9d3d27fd-dentist-bot`. That app had been deployed successfully to Vercel
-but was not merged into main before the separate Python knowledge-base work.
-The restored chat now answers basic general-education questions using the shared
-source-linked JSON knowledge base. This is still a fictional demo, not a
-clinical triage system or live internet-research integration.
+The Next.js app is a fictional, non-production front-desk demo. It answers
+approved administrative FAQs and captures demo appointment requests; it does not
+give dental or medical advice or make real appointments. Do not enter real personal
+or medical information. The separate experimental Python knowledge-base files are
+retained for research; they are not connected to the website chat and are not
+approved for patient use.
 
 ## Web app / Vercel
 
@@ -19,20 +18,30 @@ npm run build
 ```
 
 Vercel: Next.js preset, repository root, default build/output settings. The
-restored `app/` directory and package lock make the app buildable from a clean
-checkout without relying on cached files. Open chat and choose **Dental basics**,
-or ask “How often should I brush?” or “What is root canal treatment?”.
-The appointment-request flow still asks entry-level questions and only accepts
-fictional details. It needs the Supabase configuration in `.env.example` and
-the included migration to persist demo requests. Without configuration it fails
-closed with a 503; FAQ answers do not require secrets or external services.
-Do not expose a Supabase service-role key to browser code.
+chat recognises a range of phrasings for the approved practice FAQs, but it is a
+deterministic matcher rather than a general-purpose AI. It cannot answer clinical
+questions; unknown questions are handed off. It does not collect chat transcripts.
+The request flow accepts fictional details only. Apply the SQL migration in
+`supabase/migrations/` to a dedicated Supabase demo project, then configure
+`NEXT_PUBLIC_SUPABASE_URL` and the server-only `SUPABASE_SERVICE_ROLE_KEY` as in
+`.env.example`. Without them, submissions fail closed with a friendly message.
+Inspect demo rows in the Supabase dashboard; no anonymous read policy exists.
+Never expose the service-role key to browser code. No AI key is required.
+
+The website is marked noindex/nofollow and robots.txt disallows indexing, but
+these are not access controls. Change fictional practice information consistently
+in `lib/content.ts`, `app/page.tsx` and `components/site.tsx`. A real deployment
+would require verified practice details, approved content, consent, integration,
+and legal, privacy and compliance review.
 
 The recovered dependency tree reports npm audit findings; upgrading dependency
 major versions is separate from the deployment restoration and must be tested
 before real-world use.
 
-## Try it
+## Separate experimental Python prototype (not the web chat)
+
+These research examples are separate from the no-advice website demo. Do not use
+them for patient data or advice.
 
 ```sh
 python bot.py --intake
